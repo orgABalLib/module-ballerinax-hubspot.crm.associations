@@ -143,6 +143,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Configure Gradle credentials
+        if: steps.diff.outputs.has_changes == 'true'
+        run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties << EOF
+          githubUser=${{ github.actor }}
+          githubPAT=${{ secrets.PAT_TOKEN }}
+          EOF
+          echo "Gradle credentials configured"
+
       - name: Run Gradle build to generate Ballerina files
         if: steps.diff.outputs.has_changes == 'true'
         env:
