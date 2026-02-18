@@ -83,7 +83,7 @@ isolated function testCreateDefaultAssociation() returns error? {
     groups: ["live_tests", "mock_tests", "positive_tests"]
 }
 isolated function testCreateCustomAssociation() returns error? {
-    BatchResponseLabelsBetweenObjectPair|BatchResponseLabelsBetweenObjectPairWithErrors response = check hubspotAssociations->/associations/[FROM_OBJECT_TYPE]/[TO_OBJECT_TYPE]/batch/create.post(
+    BatchResponseLabelsBetweenObjectPair response = check hubspotAssociations->/associations/[FROM_OBJECT_TYPE]/[TO_OBJECT_TYPE]/batch/create.post(
         payload = {
             inputs: [
                 {
@@ -161,7 +161,7 @@ isolated function testCreateAssociationLabel() returns error? {
     dependsOn: [testGetAssociationsList, testReadAssociation]
 }
 isolated function testRemoveAssociationBetweenObject() returns error? {
-    error? response = check hubspotAssociations->/associations/[FROM_OBJECT_TYPE]/[TO_OBJECT_TYPE]/batch/archive.post(
+    BatchResponseVoid|error archiveResponse = hubspotAssociations->/associations/[FROM_OBJECT_TYPE]/[TO_OBJECT_TYPE]/batch/archive.post(
         payload = {
             inputs: [
                 {
@@ -177,7 +177,10 @@ isolated function testRemoveAssociationBetweenObject() returns error? {
             ]
         }
     );
-    test:assertEquals(response, ());
+    if archiveResponse is error {
+        return archiveResponse;
+    }
+    test:assertTrue(true, msg = "Association removed successfully.");
 }
 
 @test:Config {
@@ -185,7 +188,7 @@ isolated function testRemoveAssociationBetweenObject() returns error? {
     dependsOn: [testGetAssociationsList, testReadAssociation]
 }
 isolated function testDeleteSpecificLables() returns error? {
-    error? response = check hubspotAssociations->/associations/[FROM_OBJECT_TYPE]/[TO_OBJECT_TYPE]/batch/labels/archive.post(
+    BatchResponseVoid|error archiveResponse = hubspotAssociations->/associations/[FROM_OBJECT_TYPE]/[TO_OBJECT_TYPE]/batch/labels/archive.post(
         payload = {
             inputs: [
                 {
@@ -205,7 +208,10 @@ isolated function testDeleteSpecificLables() returns error? {
             ]
         }
     );
-    test:assertEquals(response, ());
+    if archiveResponse is error {
+        return archiveResponse;
+    }
+    test:assertTrue(true, msg = "Specific labels deleted successfully.");
 }
 
 @test:Config {
@@ -250,7 +256,7 @@ isolated function testCreateDefaultAssociationByInvalidObjectType() returns erro
     groups: ["live_tests", "mock_tests", "negative_tests"]
 }
 isolated function testCreateCustomAssociationByInvalidObjectType() returns error? {
-    BatchResponseLabelsBetweenObjectPair|BatchResponseLabelsBetweenObjectPairWithErrors|error response = hubspotAssociations->/associations/[INVALID_FROM_OBJECT_TYPE]/[INVALID_TO_OBJECT_TYPE]/batch/create.post(
+    BatchResponseLabelsBetweenObjectPair|error response = hubspotAssociations->/associations/[INVALID_FROM_OBJECT_TYPE]/[INVALID_TO_OBJECT_TYPE]/batch/create.post(
         payload = {
             inputs: [
                 {
@@ -277,7 +283,7 @@ isolated function testCreateCustomAssociationByInvalidObjectType() returns error
     groups: ["live_tests", "mock_tests", "negative_tests"]
 }
 isolated function testDeleteSpecificLablesByInvalidObjectType() returns error? {
-    error? response = hubspotAssociations->/associations/[INVALID_FROM_OBJECT_TYPE]/[INVALID_TO_OBJECT_TYPE]/batch/labels/archive.post(
+    BatchResponseVoid|error archiveResponse = hubspotAssociations->/associations/[INVALID_FROM_OBJECT_TYPE]/[INVALID_TO_OBJECT_TYPE]/batch/labels/archive.post(
         payload = {
             inputs: [
                 {
@@ -297,7 +303,7 @@ isolated function testDeleteSpecificLablesByInvalidObjectType() returns error? {
             ]
         }
     );
-    test:assertTrue(response is error);
+    test:assertTrue(archiveResponse is error);
 }
 
 @test:Config {
@@ -312,7 +318,7 @@ isolated function testDeleteAllAssociationsByInvalidObjectType() returns error? 
     groups: ["live_tests", "mock_tests", "negative_tests"]
 }
 isolated function testRemoveAssociationBetweenObjectByInvalidObjectType() returns error? {
-    error? response = hubspotAssociations->/associations/[INVALID_TO_OBJECT_TYPE]/[INVALID_FROM_OBJECT_TYPE]/batch/archive.post(
+    BatchResponseVoid|error archiveResponse = hubspotAssociations->/associations/[INVALID_TO_OBJECT_TYPE]/[INVALID_FROM_OBJECT_TYPE]/batch/archive.post(
         payload = {
             inputs: [
                 {
@@ -328,5 +334,5 @@ isolated function testRemoveAssociationBetweenObjectByInvalidObjectType() return
             ]
         }
     );
-    test:assertTrue(response is error);
+    test:assertTrue(archiveResponse is error);
 }

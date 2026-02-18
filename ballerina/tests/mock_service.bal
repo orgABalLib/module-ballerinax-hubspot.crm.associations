@@ -40,40 +40,38 @@ http:Service mockService = service object {
     # http:DefaultStatusCodeResponse (An error occurred.)
     resource function get objects/[string objectType]/[string objectId]/associations/[string toObjectType](string? after, int:Signed32 'limit = 500) returns CollectionResponseMultiAssociatedObjectWithLabelForwardPaging|error {
         if objectType == FROM_OBJECT_TYPE && objectId == FROM_OBJECT_ID && toObjectType == TO_OBJECT_TYPE {
-            return {
-                results: [
-                    {
-                        toObjectId: 38056537805,
-                        associationTypes: [
-                            {
-                                category: "HUBSPOT_DEFINED",
-                                typeId: 5,
-                                label: "Primary"
-                            },
-                            {
-                                category: "HUBSPOT_DEFINED",
-                                typeId: 341,
-                                label: null
-                            }
-                        ]
-                    },
-                    {
-                        toObjectId: 38056537829,
-                        associationTypes: [
-                            {
-                                category: "USER_DEFINED",
-                                typeId: 9,
-                                label: "d->c"
-                            },
-                            {
-                                category: "HUBSPOT_DEFINED",
-                                typeId: 341,
-                                label: null
-                            }
-                        ]
-                    }
-                ]
+            AssociationSpecWithLabel associationType1 = {
+                category: "HUBSPOT_DEFINED",
+                typeId: 5,
+                label: "Primary"
             };
+            AssociationSpecWithLabel associationType2 = {
+                category: "HUBSPOT_DEFINED",
+                typeId: 341,
+                label: ()
+            };
+            AssociationSpecWithLabel associationType3 = {
+                category: "USER_DEFINED",
+                typeId: 9,
+                label: "d->c"
+            };
+            AssociationSpecWithLabel associationType4 = {
+                category: "HUBSPOT_DEFINED",
+                typeId: 341,
+                label: ()
+            };
+            MultiAssociatedObjectWithLabel multiObj1 = {
+                toObjectId: "38056537805",
+                associationTypes: [associationType1, associationType2]
+            };
+            MultiAssociatedObjectWithLabel multiObj2 = {
+                toObjectId: "38056537829",
+                associationTypes: [associationType3, associationType4]
+            };
+            CollectionResponseMultiAssociatedObjectWithLabelForwardPaging responsePayload = {
+                results: [multiObj1, multiObj2]
+            };
+            return responsePayload;
         } else {
             return error("Unable to infer object type from: " + objectType);
         }
@@ -99,25 +97,28 @@ http:Service mockService = service object {
     # http:DefaultStatusCodeResponse (An error occurred.)
     resource function post associations/[string fromObjectType]/[string toObjectType]/batch/associate/default(@http:Payload BatchInputPublicDefaultAssociationMultiPost payload) returns BatchResponsePublicDefaultAssociation|error {
         if fromObjectType == FROM_OBJECT_TYPE && toObjectType == TO_OBJECT_TYPE {
-            return {
+            PublicObjectId fromObj = {
+                id: FROM_OBJECT_ID
+            };
+            PublicObjectId toObj = {
+                id: TO_OBJECT_ID
+            };
+            AssociationSpec assocSpec = {
+                associationCategory: "HUBSPOT_DEFINED",
+                associationTypeId: 341
+            };
+            PublicDefaultAssociation defaultAssoc = {
+                'from: fromObj,
+                to: toObj,
+                associationSpec: assocSpec
+            };
+            BatchResponsePublicDefaultAssociation responsePayload = {
                 status: "COMPLETE",
-                results: [
-                    {
-                        'from: {
-                            id: FROM_OBJECT_ID
-                        },
-                        to: {
-                            id: TO_OBJECT_ID
-                        },
-                        associationSpec: {
-                            associationCategory: "HUBSPOT_DEFINED",
-                            associationTypeId: 341
-                        }
-                    }
-                ],
+                results: [defaultAssoc],
                 startedAt: "2025-02-16T06:38:42.797Z",
                 completedAt: "2025-02-16T06:38:42.890Z"
             };
+            return responsePayload;
         } else {
             return error("Unable to infer object type from: " + fromObjectType);
         }
@@ -131,20 +132,20 @@ http:Service mockService = service object {
     # http:DefaultStatusCodeResponse (An error occurred.)
     resource function post associations/[string fromObjectType]/[string toObjectType]/batch/create(@http:Payload BatchInputPublicAssociationMultiPost payload) returns BatchResponseLabelsBetweenObjectPair|error {
         if fromObjectType == FROM_OBJECT_TYPE && toObjectType == TO_OBJECT_TYPE {
-            return {
+            LabelsBetweenObjectPair labelPair = {
+                fromObjectTypeId: "0-3",
+                fromObjectId: "46989749974",
+                toObjectTypeId: "0-2",
+                toObjectId: "43500581578",
+                labels: ["test-deal->company-1"]
+            };
+            BatchResponseLabelsBetweenObjectPair responsePayload = {
                 status: "COMPLETE",
-                results: [
-                    {
-                        fromObjectTypeId: "0-3",
-                        fromObjectId: 46989749974,
-                        toObjectTypeId: "0-2",
-                        toObjectId: 43500581578,
-                        labels: ["test-deal->company-1"]
-                    }
-                ],
+                results: [labelPair],
                 startedAt: "2025-02-18T08:53:51.080Z",
                 completedAt: "2025-02-18T08:53:51.205Z"
             };
+            return responsePayload;
         } else {
             return error("Unable to infer object type from: " + fromObjectType);
         }
@@ -166,50 +167,48 @@ http:Service mockService = service object {
     # http:MultiStatus (multiple statuses)
     # http:DefaultStatusCodeResponse (An error occurred.)
     resource function post associations/[string fromObjectType]/[string toObjectType]/batch/read(@http:Payload BatchInputPublicFetchAssociationsBatchRequest payload) returns BatchResponsePublicAssociationMultiWithLabel|error {
-        return {
+        AssociationSpecWithLabel assocType1 = {
+            category: "HUBSPOT_DEFINED",
+            typeId: 341,
+            label: ()
+        };
+        AssociationSpecWithLabel assocType2 = {
+            category: "HUBSPOT_DEFINED",
+            typeId: 5,
+            label: "Primary"
+        };
+        AssociationSpecWithLabel assocType3 = {
+            category: "HUBSPOT_DEFINED",
+            typeId: 341,
+            label: ()
+        };
+        AssociationSpecWithLabel assocType4 = {
+            category: "USER_DEFINED",
+            typeId: 9,
+            label: "d->c"
+        };
+        MultiAssociatedObjectWithLabel toObj1 = {
+            toObjectId: "43500581578",
+            associationTypes: [assocType1, assocType2]
+        };
+        MultiAssociatedObjectWithLabel toObj2 = {
+            toObjectId: "38056537829",
+            associationTypes: [assocType3, assocType4]
+        };
+        PublicObjectId fromObj = {
+            id: "46989749974"
+        };
+        PublicAssociationMultiWithLabel assocMulti = {
+            'from: fromObj,
+            to: [toObj1, toObj2]
+        };
+        BatchResponsePublicAssociationMultiWithLabel responsePayload = {
             status: "COMPLETE",
-            results: [
-                {
-                    'from: {
-                        id: "46989749974"
-                    },
-                    to: [
-                        {
-                            toObjectId: 43500581578,
-                            associationTypes: [
-                                {
-                                    category: "HUBSPOT_DEFINED",
-                                    typeId: 341,
-                                    label: null
-                                },
-                                {
-                                    category: "HUBSPOT_DEFINED",
-                                    typeId: 5,
-                                    label: "Primary"
-                                }
-                            ]
-                        },
-                        {
-                            toObjectId: 38056537829,
-                            associationTypes: [
-                                {
-                                    category: "HUBSPOT_DEFINED",
-                                    typeId: 341,
-                                    label: null
-                                },
-                                {
-                                    category: "USER_DEFINED",
-                                    typeId: 9,
-                                    label: "d->c"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
+            results: [assocMulti],
             startedAt: "2025-02-17T11:08:16.755Z",
             completedAt: "2025-02-17T11:08:16.767Z"
         };
+        return responsePayload;
     }
 
     # Report
@@ -218,16 +217,13 @@ http:Service mockService = service object {
     # + return - returns can be any of following types 
     # http:Ok (successful operation)
     # http:DefaultStatusCodeResponse (An error occurred.)
-    resource function post associations/usage/high\-usage\-report/[int:Signed32 userId]() returns ReportCreationResponse|error {
-        return {
-            enqueueTime: {
-                value: 1739687932759,
-                dateOnly: false,
-                timeZoneShift: 0
-            },
+    resource function post associations/usage/high\-usage\-report/[int:Signed32 userId]() returns record {|string enqueueTime; int:Signed32 userId; string userEmail;|}|error {
+        record {|string enqueueTime; int:Signed32 userId; string userEmail;|} responsePayload = {
+            enqueueTime: "2025-02-16T12:38:52.759Z",
             userId: userId,
             userEmail: "email@gmail.com"
         };
+        return responsePayload;
     }
 
     # Create Default Association Between Two Object Types
@@ -236,37 +232,43 @@ http:Service mockService = service object {
     # http:Ok (successful operation)
     # http:DefaultStatusCodeResponse (An error occurred.)
     resource function put objects/[string fromObjectType]/[string fromObjectId]/associations/default/[string toObjectType]/[string toObjectId]() returns BatchResponsePublicDefaultAssociation|error {
-        return {
+        PublicObjectId fromObj1 = {
+            id: "46989749974"
+        };
+        PublicObjectId toObj1 = {
+            id: "43500581578"
+        };
+        AssociationSpec assocSpec1 = {
+            associationCategory: "HUBSPOT_DEFINED",
+            associationTypeId: 341
+        };
+        PublicDefaultAssociation defaultAssoc1 = {
+            'from: fromObj1,
+            to: toObj1,
+            associationSpec: assocSpec1
+        };
+        PublicObjectId fromObj2 = {
+            id: "38056537829"
+        };
+        PublicObjectId toObj2 = {
+            id: "41479955131"
+        };
+        AssociationSpec assocSpec2 = {
+            associationCategory: "HUBSPOT_DEFINED",
+            associationTypeId: 342
+        };
+        PublicDefaultAssociation defaultAssoc2 = {
+            'from: fromObj2,
+            to: toObj2,
+            associationSpec: assocSpec2
+        };
+        BatchResponsePublicDefaultAssociation responsePayload = {
             status: "COMPLETE",
-            results: [
-                {
-                    'from: {
-                        id: "46989749974"
-                    },
-                    to: {
-                        id: "43500581578"
-                    },
-                    associationSpec: {
-                        associationCategory: "HUBSPOT_DEFINED",
-                        associationTypeId: 341
-                    }
-                },
-                {
-                    'from: {
-                        id: "38056537829"
-                    },
-                    to: {
-                        id: "41479955131"
-                    },
-                    associationSpec: {
-                        associationCategory: "HUBSPOT_DEFINED",
-                        associationTypeId: 342
-                    }
-                }
-            ],
+            results: [defaultAssoc1, defaultAssoc2],
             startedAt: "2025-02-17T12:01:32.039Z",
             completedAt: "2025-02-17T12:01:32.070Z"
         };
+        return responsePayload;
     }
 
     # Create Association Labels Between Two Records
@@ -275,13 +277,14 @@ http:Service mockService = service object {
     # http:Created (successful operation)
     # http:DefaultStatusCodeResponse (An error occurred.)
     resource function put objects/[string objectType]/[string objectId]/associations/[string toObjectType]/[string toObjectId](@http:Payload AssociationSpec[] payload) returns LabelsBetweenObjectPair|error {
-        return {
+        LabelsBetweenObjectPair responsePayload = {
             fromObjectTypeId: "0-3",
-            fromObjectId: 46989749974,
+            fromObjectId: "46989749974",
             toObjectTypeId: "0-2",
-            toObjectId: 43500581578,
+            toObjectId: "43500581578",
             labels: ["test-deal->company-1"]
         };
+        return responsePayload;
     }
 };
 
